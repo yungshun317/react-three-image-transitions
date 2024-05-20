@@ -1,5 +1,8 @@
 import {useRef} from "react";
 
+const fragmentShader = ``;
+const vertexShader = ``;
+
 const Scene = () => {
     const mesh = useRef();
 
@@ -7,7 +10,10 @@ const Scene = () => {
         <>
             <mesh ref={mesh}>
                 <boxGeometry args={[1, 1, 1]} />
-                <meshBasicMaterial color={0xffffff} />
+                <shaderMaterial
+                    fragmentShader={fragmentShader}
+                    vertexShader={vertexShader}
+                />
             </mesh>
         </>
     );
