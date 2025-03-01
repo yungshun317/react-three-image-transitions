@@ -10,6 +10,8 @@ module.exports = {
         verticalWipeTransition: path.resolve(__dirname, "../src/vertical-wipe-transition/index.jsx"),
         radialRippleTransition: path.resolve(__dirname, "../src/radial-ripple-transition/index.jsx"),
         waterfrontFlowTransition: path.resolve(__dirname, "../src/waterfront-flow-transition/index.jsx"),
+        meltFlowTransition: path.resolve(__dirname, "../src/melt-flow-transition/index.jsx"),
+        hydroShapeshiftTransition: path.resolve(__dirname, "../src/hydro-shapeshift-transition/index.jsx"),
         imageTransition: path.resolve(__dirname, "../src/image-transition/index.jsx")
     },
     resolve: {
@@ -48,6 +50,18 @@ module.exports = {
             template: path.resolve(__dirname, "../src/waterfront-flow-transition/index.html"),
             filename: "waterfront-flow-transition/index.html",
             chunks: ["waterfrontFlowTransition"],
+            minify: true
+        }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, "../src/melt-flow-transition/index.html"),
+            filename: "melt-flow-transition/index.html",
+            chunks: ["meltFlowTransition"],
+            minify: true
+        }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, "../src/hydro-shapeshift-transition/index.html"),
+            filename: "hydro-shapeshift-transition/index.html",
+            chunks: ["hydroShapeshiftTransition"],
             minify: true
         }),
         new HtmlWebpackPlugin({

@@ -4,7 +4,7 @@ import {shaderMaterial, useTexture} from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
 
-const ImageTransitionMaterial = shaderMaterial(
+const PrismRefractionTransitionMaterial = shaderMaterial(
     // Adjust `intensity` in (1, 100)
     { uProgress: 0, intensity: 50, uTexture1: null, uTexture2: null, resolution: new THREE.Vector4(1, 1, 1, 1)},
     `
@@ -49,9 +49,9 @@ const ImageTransitionMaterial = shaderMaterial(
     `
 )
 
-extend({ ImageTransitionMaterial });
+extend({ PrismRefractionTransitionMaterial });
 
-const ImageTransition = () => {
+const PrismRefractionTransition = () => {
     const imageRef = useRef();
     const isAnimating = useRef(false);
 
@@ -124,7 +124,7 @@ const ImageTransition = () => {
     return (
         <mesh onClick={handleClick}>
             <planeGeometry args={[viewport.width, viewport.height]} />
-            <imageTransitionMaterial
+            <prismRefractionTransitionMaterial
                 ref={imageRef}
                 transparent={true}
                 uTexture1={images[imageIndex]}
@@ -137,7 +137,7 @@ const ImageTransition = () => {
 const Scene = () => {
     return (
         <>
-            <ImageTransition />
+            <PrismRefractionTransition />
         </>
     );
 };

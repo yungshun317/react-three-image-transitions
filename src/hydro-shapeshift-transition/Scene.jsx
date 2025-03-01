@@ -3,10 +3,11 @@ import { extend, useLoader, useThree } from "@react-three/fiber";
 import {shaderMaterial, useTexture} from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
+import displacementMap from "../assets/images/disp1.jpg";
 
-const ImageTransitionMaterial = shaderMaterial(
-    // Adjust `intensity` in (1, 100)
-    { uProgress: 0, intensity: 50, uTexture1: null, uTexture2: null, resolution: new THREE.Vector4(1, 1, 1, 1)},
+const HydroShapeshiftTransitionMaterial = shaderMaterial(
+    // Adjust `intensity` in (0, 3)
+    { uProgress: 0, intensity: 1, uTexture1: null, uTexture2: null, displacement: null, resolution: new THREE.Vector4(1, 1, 1, 1)},
     `
     varying vec2 vUv;
     void main() {
@@ -19,39 +20,40 @@ const ImageTransitionMaterial = shaderMaterial(
     uniform float intensity;
     uniform sampler2D uTexture1;
     uniform sampler2D uTexture2;
+    uniform sampler2D displacement;
     uniform vec4 resolution;
 
     varying vec2 vUv;
     
-    mat2 rotate(float a) {
-        float s = sin(a);
-        float c = cos(a);
+    mat2 getRotM(float angle) {
+        float s = sin(angle);
+        float c = cos(angle);
         return mat2(c, -s, s, c);
     }
     const float PI = 3.1415;
-    const float angle1 = PI *0.25;
-    const float angle2 = -PI *0.75;
+    const float angle1 = PI * 0.25;
+    const float angle2 = -PI * 0.75;
     
     void main() {
         vec2 newUV = (vUv - vec2(0.5)) * resolution.zw + vec2(0.5);
 
-        vec2 uvDivided = fract(newUV * vec2(intensity, 1.));
+        vec4 disp = texture2D(displacement, newUV);
+        vec2 dispVec = vec2(disp.r, disp.g);
 
+        vec2 distortedPosition1 = newUV + getRotM(angle1) * dispVec * intensity * uProgress;
+        vec4 t1 = texture2D(uTexture1, distortedPosition1);
 
-        vec2 uvDisplaced1 = newUV + rotate(3.1415926 / 4.) * uvDivided * uProgress * 0.1;
-        vec2 uvDisplaced2 = newUV + rotate(3.1415926 / 4.) * uvDivided*(1. - uProgress) * 0.1;
-
-        vec4 t1 = texture2D(uTexture1, uvDisplaced1);
-        vec4 t2 = texture2D(uTexture2, uvDisplaced2);
+        vec2 distortedPosition2 = newUV + getRotM(angle2) * dispVec * intensity * (1.0 - uProgress);
+        vec4 t2 = texture2D(uTexture2, distortedPosition2);
 
         gl_FragColor = mix(t1, t2, uProgress);
     }
     `
 )
 
-extend({ ImageTransitionMaterial });
+extend({ HydroShapeshiftTransitionMaterial });
 
-const ImageTransition = () => {
+const HydroShapeshiftTransition = () => {
     const imageRef = useRef();
     const isAnimating = useRef(false);
 
@@ -63,6 +65,12 @@ const ImageTransition = () => {
         "../assets/images/image01.png",
         "../assets/images/image02.png"
     ]);
+    const displacement = useTexture(displacementMap);
+    useEffect(() => {
+        if (imageRef.current && displacement) {
+            imageRef.current.uniforms.displacement.value = displacement;
+        }
+    }, [displacement]);
 
     const [hasStarted, setHasStarted] = useState(false);
     const [imageIndex, setImageIndex] = useState(0);
@@ -124,7 +132,7 @@ const ImageTransition = () => {
     return (
         <mesh onClick={handleClick}>
             <planeGeometry args={[viewport.width, viewport.height]} />
-            <imageTransitionMaterial
+            <hydroShapeshiftTransitionMaterial
                 ref={imageRef}
                 transparent={true}
                 uTexture1={images[imageIndex]}
@@ -137,7 +145,7 @@ const ImageTransition = () => {
 const Scene = () => {
     return (
         <>
-            <ImageTransition />
+            <HydroShapeshiftTransition />
         </>
     );
 };

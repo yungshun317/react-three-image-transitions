@@ -4,9 +4,9 @@ import {shaderMaterial, useTexture} from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
 
-const ImageTransitionMaterial = shaderMaterial(
-    // Adjust `intensity` in (1, 100)
-    { uProgress: 0, intensity: 50, uTexture1: null, uTexture2: null, resolution: new THREE.Vector4(1, 1, 1, 1)},
+const MeltFlowTransitionMaterial = shaderMaterial(
+    // Adjust `intensity` in (0, 2)
+    { uProgress: 0, intensity: 0.3, uTexture1: null, uTexture2: null, resolution: new THREE.Vector4(1, 1, 1, 1)},
     `
     varying vec2 vUv;
     void main() {
@@ -23,35 +23,26 @@ const ImageTransitionMaterial = shaderMaterial(
 
     varying vec2 vUv;
     
-    mat2 rotate(float a) {
-        float s = sin(a);
-        float c = cos(a);
-        return mat2(c, -s, s, c);
-    }
-    const float PI = 3.1415;
-    const float angle1 = PI *0.25;
-    const float angle2 = -PI *0.75;
-    
     void main() {
         vec2 newUV = (vUv - vec2(0.5)) * resolution.zw + vec2(0.5);
 
-        vec2 uvDivided = fract(newUV * vec2(intensity, 1.));
+        vec4 d1 = texture2D(uTexture1, newUV);
+        vec4 d2 = texture2D(uTexture2, newUV);
 
-
-        vec2 uvDisplaced1 = newUV + rotate(3.1415926 / 4.) * uvDivided * uProgress * 0.1;
-        vec2 uvDisplaced2 = newUV + rotate(3.1415926 / 4.) * uvDivided*(1. - uProgress) * 0.1;
-
-        vec4 t1 = texture2D(uTexture1, uvDisplaced1);
-        vec4 t2 = texture2D(uTexture2, uvDisplaced2);
+        float displace1 = (d1.r + d1.g + d1.b) * 0.33;
+        float displace2 = (d2.r + d2.g + d2.b) * 0.33;
+         
+        vec4 t1 = texture2D(uTexture1, vec2(newUV.x, newUV.y + uProgress * (displace2 * intensity)));
+        vec4 t2 = texture2D(uTexture2, vec2(newUV.x, newUV.y + (1.0 - uProgress) * (displace1 * intensity)));
 
         gl_FragColor = mix(t1, t2, uProgress);
     }
     `
 )
 
-extend({ ImageTransitionMaterial });
+extend({ MeltFlowTransitionMaterial });
 
-const ImageTransition = () => {
+const MeltFlowTransition = () => {
     const imageRef = useRef();
     const isAnimating = useRef(false);
 
@@ -99,6 +90,14 @@ const ImageTransition = () => {
             }
         });
 
+        /*
+        gsap.to(imageRef.current.uniforms.intensity,{
+            value: 0.3,
+            duration: 1.5,
+            ease: "power2.out"
+        });
+         */
+
     }, [imageIndex]);
 
     useEffect(() => {
@@ -124,7 +123,7 @@ const ImageTransition = () => {
     return (
         <mesh onClick={handleClick}>
             <planeGeometry args={[viewport.width, viewport.height]} />
-            <imageTransitionMaterial
+            <meltFlowTransitionMaterial
                 ref={imageRef}
                 transparent={true}
                 uTexture1={images[imageIndex]}
@@ -137,7 +136,7 @@ const ImageTransition = () => {
 const Scene = () => {
     return (
         <>
-            <ImageTransition />
+            <MeltFlowTransition />
         </>
     );
 };
