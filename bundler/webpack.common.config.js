@@ -20,6 +20,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "../src/index.html"),
             filename: "index.html",
+            chunks: []
         }),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "../src/image-transitions/index.html"),
