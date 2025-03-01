@@ -7,7 +7,8 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
     entry: {
         fractionalEdgeWipeTransitionEffect: path.resolve(__dirname, "../src/fractional-edge-wipe-transition-effect/index.jsx"),
-        imageTransition: path.resolve(__dirname, "../src/image-transition/index.jsx")
+        verticalWipeTransition: path.resolve(__dirname, "../src/vertical-wipe-transition/index.jsx"),
+        radialRippleTransition: path.resolve(__dirname, "../src/radial-ripple-transition/index.jsx")
     },
     resolve: {
         extensions: ['.js', '.jsx', '.json']
@@ -30,9 +31,15 @@ module.exports = {
             minify: true
         }),
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, "../src/image-transition/index.html"),
-            filename: "image-transition/index.html",
-            chunks: ["imageTransition"],
+            template: path.resolve(__dirname, "../src/vertical-wipe-transition/index.html"),
+            filename: "vertical-wipe-transition/index.html",
+            chunks: ["verticalWipeTransition"],
+            minify: true
+        }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, "../src/radial-ripple-transition/index.html"),
+            filename: "radial-ripple-transition/index.html",
+            chunks: ["radialRippleTransition"],
             minify: true
         }),
         // new MiniCSSExtractPlugin()
