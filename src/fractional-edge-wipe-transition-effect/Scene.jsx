@@ -8,8 +8,9 @@ import image2 from "../assets/images/image01.png";
 import image3 from "../assets/images/image02.png";
 import displacementMap from "../assets/images/disp1.jpg";
 
-const ImageTransitionsMaterial = shaderMaterial(
-    { uTime: 0, uProgress: 0, width: 0, scaleX: 40, scaleY: 40, uTexture1: null, uTexture2: null, displacement: null, resolution: new THREE.Vector4(1, 1, 1, 1)},
+const FractionalEdgeWipeTransitionMaterial = shaderMaterial(
+    // Adjust `width` in (0, 10), `scaleX` in (0.1, 60), `scaleY` in (0.1, 60)
+    { uTime: 0, uProgress: 0, width: 0.5, scaleX: 40, scaleY: 40, uTexture1: null, uTexture2: null, displacement: null, resolution: new THREE.Vector4(1, 1, 1, 1)},
     `
     varying vec2 vUv;
     void main() {
@@ -182,20 +183,21 @@ const ImageTransitionsMaterial = shaderMaterial(
         
         vec4 color1 = texture2D(uTexture1, newUV);
         vec4 color2 = texture2D(uTexture2, newUV);
-        vec4 d = texture2D(displacement, vec2(newUV.x * scaleX, newUV.y * scaleY));
+        // vec4 d = texture2D(displacement, vec2(newUV.x * scaleX, newUV.y * scaleY));
 
         float realnoise = 0.5 * (cnoise(vec4(newUV.x * scaleX + 0. * uTime / 3., newUV.y * scaleY, 0. * uTime / 3., 0.)) + 1.);
 
         float w = width * dt;
-
         float maskvalue = smoothstep(1. - w, 1., vUv.x + mix(-w/2., 1. - w/2., uProgress));
-        float maskvalue0 = smoothstep(1., 1., vUv.x + uProgress);
+        // float maskvalue0 = smoothstep(1., 1., vUv.x + uProgress);
 
         float mask = maskvalue + maskvalue * realnoise;
-
+        // float mask = maskvalue;
+        
         float final = smoothstep(border, border + 0.01, mask);
 
         gl_FragColor = mix(color1, color2, final);
+        // gl_FragColor = vec4(maskvalue0, final, 0., 1.);
         
         /*
         vec4 texture1 = texture2D(uTexture1, vUv);
@@ -206,16 +208,14 @@ const ImageTransitionsMaterial = shaderMaterial(
     `
 )
 
-extend({ ImageTransitionsMaterial });
+extend({ FractionalEdgeWipeTransitionMaterial });
 
-const ImageTransitions = () => {
+const FractionalEdgeWipeTransitionEffect = () => {
     const imageRef = useRef();
     const isAnimating = useRef(false);
 
     const { viewport } = useThree();
     const { size } = useThree();
-
-
 
     /*
     const images = [
@@ -294,7 +294,7 @@ const ImageTransitions = () => {
 
     useEffect(() => {
         if (imageRef.current) {
-            const texture = images[imageIndex]; // Get current texture
+            const texture = images[imageIndex];
             const imgAspect = texture.image.height / texture.image.width;
             let a1, a2;
 
@@ -315,7 +315,7 @@ const ImageTransitions = () => {
     return (
         <mesh onClick={handleClick}>
             <planeGeometry args={[viewport.width, viewport.height]} />
-            <imageTransitionsMaterial
+            <fractionalEdgeWipeTransitionMaterial
                 ref={imageRef}
                 transparent={true}
                 uTexture1={images[imageIndex]}
@@ -329,7 +329,7 @@ const ImageTransitions = () => {
 const Scene = () => {
     return (
         <>
-            <ImageTransitions />
+            <FractionalEdgeWipeTransitionEffect />
         </>
     );
 };
