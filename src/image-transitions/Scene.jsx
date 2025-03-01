@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { extend, useLoader, useThree } from "@react-three/fiber";
+import {extend, useFrame, useLoader, useThree} from "@react-three/fiber";
 import { shaderMaterial } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
@@ -39,6 +39,7 @@ extend({ ImageTransitionsMaterial });
 
 const ImageTransitions = () => {
     const imageRef = useRef();
+    const isAnimating = useRef(false);
     const { viewport } = useThree();
 
     /*
@@ -55,25 +56,42 @@ const ImageTransitions = () => {
         "../assets/images/image02.png"
     ]);
 
+    const [hasStarted, setHasStarted] = useState(false);
     const [imageIndex, setImageIndex] = useState(0);
 
     const handleClick = () => {
+        if (isAnimating.current) return;
+        isAnimating.current = true;
+
+        // Mark that user has interacted
+        setHasStarted(true);
+
+        // Trigger next image
         setImageIndex((prev) => (prev + 1) % images.length);
     }
 
     useEffect(() => {
-        if (!imageRef.current) return;
+        if (!imageRef.current || !hasStarted) return;
+
+        const material = imageRef.current.uniforms;
+        const prevImageIndex = (imageIndex - 1 + images.length) % images.length;
+
+        // Correctly assign previous image to textures
+        material.uTexture1.value = images[prevImageIndex];
+        material.uTexture2.value = images[imageIndex];
 
         gsap.to(imageRef.current.uniforms.uProgress, {
             value: 1,
-            duration: 1.5,
+            duration: 3,
             ease: 'power2.out',
             onComplete: () => {
-                imageRef.current.uniforms.uTexture1.value = images[imageIndex];
-                imageRef.current.uniforms.uProgress.value = 0;
+                material.uTexture1.value = images[imageIndex];
+                material.uProgress.value = 0;
+                isAnimating.current = false;
             }
         });
 
+        /*
         gsap.to(imageRef.current.uniforms.width ,{
             value: 10,
             duration: 1.5,
@@ -91,6 +109,7 @@ const ImageTransitions = () => {
             duration: 1.5,
             ease: "power2.out"
         });
+        */
 
     }, [imageIndex]);
 
