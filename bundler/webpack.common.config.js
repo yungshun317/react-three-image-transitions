@@ -12,7 +12,8 @@ module.exports = {
         waterfrontFlowTransition: path.resolve(__dirname, "../src/waterfront-flow-transition/index.jsx"),
         meltFlowTransition: path.resolve(__dirname, "../src/melt-flow-transition/index.jsx"),
         hydroShapeshiftTransition: path.resolve(__dirname, "../src/hydro-shapeshift-transition/index.jsx"),
-        imageTransition: path.resolve(__dirname, "../src/image-transition/index.jsx")
+        prismRefractionTransition: path.resolve(__dirname, "../src/prism-refraction-transition/index.jsx"),
+        voidManifestationTransition: path.resolve(__dirname, "../src/void-manifestation-transition/index.jsx")
     },
     resolve: {
         extensions: ['.js', '.jsx', '.json']
@@ -65,9 +66,15 @@ module.exports = {
             minify: true
         }),
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, "../src/image-transition/index.html"),
-            filename: "image-transition/index.html",
-            chunks: ["imageTransition"],
+            template: path.resolve(__dirname, "../src/prism-refraction-transition/index.html"),
+            filename: "prism-refraction-transition/index.html",
+            chunks: ["prismRefractionTransition"],
+            minify: true
+        }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, "../src/void-manifestation-transition/index.html"),
+            filename: "void-manifestation-transition/index.html",
+            chunks: ["voidManifestationTransition"],
             minify: true
         }),
         // new MiniCSSExtractPlugin()
